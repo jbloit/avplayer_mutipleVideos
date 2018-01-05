@@ -54,6 +54,9 @@ class ViewController: UIViewController {
         movieLayer.videoGravity = .resize
         movie.layer.addSublayer(movieLayer)
 
+        
+        Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(self.displayCurrentTime), userInfo: nil, repeats: true)
+
     }
     
     override func viewDidLayoutSubviews() {
@@ -68,6 +71,15 @@ class ViewController: UIViewController {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    @objc func displayCurrentTime(){
+
+        let audioClock = UnsafeMutablePointer<CMClock?>.allocate(capacity: 1)
+        CMAudioClockCreate(kCFAllocatorDefault, audioClock)
+        let hostTime = CMClockGetTime(audioClock.pointee!)
+
+        print("host time (from audio clock) \(hostTime.seconds)")
     }
 
 
