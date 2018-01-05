@@ -38,21 +38,38 @@ class ViewController: UIViewController {
         "Chaconne_simple_hautecontre.mp4",
         "Chaconne_simple_theorbe.mp4",
         "Chaconne_simple_violon.mp4"]
-    
-    
-    var vid1: InstrumentVideoMonitor!
+
+    var vidz: [InstrumentVideoMonitor] = []
     
     //MARK:- LIFECYCLE
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        // Create an audio clock
         CMAudioClockCreate(kCFAllocatorDefault, audioClock)
         
-        vid1 = InstrumentVideoMonitor(withClock: audioClock.pointee!,
-                                      andFrame: CGRect(x: 0, y: 0, width: 300, height: 200),
-                                      movieURL: Bundle.main.bundleURL.appendingPathComponent("videos", isDirectory: true).appendingPathComponent(simpleVideos[0]))
-        view.addSubview(vid1.view)
+        // Init video monitors
+        let numberOfVideos = 20
+        let rows = CGFloat(4)
+        let cols = CGFloat(5)
+        
+        let cellWidth = view.frame.width / cols
+        let cellHeight = (view.frame.height - 100) / rows
+        
+        for i in 0...(numberOfVideos-1){
+            
+            let x: CGFloat = CGFloat(i % Int(cols)) * cellWidth
+            let rowIndex = Int(floor(Float(i) / Float(cols)))
+            let y: CGFloat = CGFloat(rowIndex) * cellHeight
+            
+            let videoMonitor = InstrumentVideoMonitor(withClock: audioClock.pointee!,
+                                                      andFrame: CGRect(x: x, y: y, width: cellWidth, height: cellHeight),
+                                                      movieURL: Bundle.main.bundleURL.appendingPathComponent("videos", isDirectory: true).appendingPathComponent(simpleVideos[0]))
+            vidz.append(videoMonitor)
+            view.addSubview(videoMonitor.view)
+        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -73,21 +90,27 @@ class ViewController: UIViewController {
     @IBAction func playButtonTouched(_ sender: Any) {
         
         let startTime = CMTimeAdd(getHostTimeFromAudioClock(), CMTime(seconds: 1, preferredTimescale: getHostTimeFromAudioClock().timescale))
-        vid1.startMoviesAtHostTime(startTime: startTime)
+        
+        for videoMonitor in vidz{
+            videoMonitor.startMoviesAtHostTime(startTime: startTime)
+        }
     }
+    
     @IBAction func stopButtonTouched(_ sender: Any) {
-        vid1.stopMovies()
+        for videoMonitor in vidz{
+            videoMonitor.stopMovies()
+        }
     }
+    
     @IBAction func gotoButtonTouched(_ sender: Any) {
-        vid1.transportMoviesTo(timeInSeconds: 20.0)
+        for videoMonitor in vidz{
+            videoMonitor.transportMoviesTo(timeInSeconds: 20.0)
+        }
     }
     
     //MARK:- helpers
     func getHostTimeFromAudioClock()->CMTime{
         return CMClockGetTime(audioClock.pointee!)
     }
-    
-
-    
 }
 
