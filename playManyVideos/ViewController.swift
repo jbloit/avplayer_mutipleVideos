@@ -45,7 +45,6 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        
         CMAudioClockCreate(kCFAllocatorDefault, audioClock)
         
         numberOfVideos = simpleVideos.count
@@ -62,7 +61,6 @@ class ViewController: UIViewController {
         movieLayer.videoGravity = .resize
         movie.layer.addSublayer(movieLayer)
         moviePlayer.masterClock = audioClock.pointee
-        
         moviePlayer.automaticallyWaitsToMinimizeStalling = false
 
         
@@ -99,17 +97,20 @@ class ViewController: UIViewController {
     
     //MARK:- helpers
     
+    /**
+     Play movie from the beginning, and sync it with a given host start time, ie the host time
+     for which we want the audio to hit the speaker.
+     */
     func startMoviesAtHostTime(startTime: CMTime){
-        let hostTime = CMClockGetTime(audioClock.pointee!)
         moviePlayer.rate = 0
         moviePlayer.preroll(atRate: 1.0, completionHandler: { (complete: Bool) in
             if complete {
+                // using kCMTimeInvalid will indicates to play from the item’s current time
                 self.moviePlayer.setRate(1.0, time: kCMTimeInvalid, atHostTime: startTime)
             } else {
                 print("preload not done")
             }
         })
-        
     }
     
     func stopMovies(){
@@ -122,7 +123,6 @@ class ViewController: UIViewController {
         let targetTransportTime = CMTimeMakeWithSeconds(Float64(timeInSeconds), getHostTimeFromAudioClock().timescale)
         moviePlayer.seek(to: targetTransportTime)
     }
-    
     
     func getHostTimeFromAudioClock()->CMTime{
         return CMClockGetTime(audioClock.pointee!)
