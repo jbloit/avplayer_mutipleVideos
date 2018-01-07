@@ -51,9 +51,9 @@ class ViewController: UIViewController {
         CMAudioClockCreate(kCFAllocatorDefault, audioClock)
         
         // Init video monitors
-        let numberOfVideos = 20
-        let rows = CGFloat(4)
-        let cols = CGFloat(5)
+        let numberOfVideos = 8
+        let rows = CGFloat(3)
+        let cols = CGFloat(3)
         
         let cellWidth = view.frame.width / cols
         let cellHeight = (view.frame.height - 100) / rows
@@ -66,8 +66,12 @@ class ViewController: UIViewController {
             
             let videoMonitor = InstrumentVideoMonitor(withClock: audioClock.pointee!,
                                                       andFrame: CGRect(x: x, y: y, width: cellWidth, height: cellHeight),
-                                                      movieURL: Bundle.main.bundleURL.appendingPathComponent("videos", isDirectory: true).appendingPathComponent(simpleVideos[0]))
+                                                      movieURL: Bundle.main.bundleURL.appendingPathComponent("videos", isDirectory: true).appendingPathComponent(simpleVideos[0]), altMovieURL: Bundle.main.bundleURL.appendingPathComponent("videos", isDirectory: true).appendingPathComponent(ornmentVideos[0])
+                                                      )
             vidz.append(videoMonitor)
+            
+
+            
             view.addSubview(videoMonitor.view)
         }
     }
@@ -103,9 +107,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func gotoButtonTouched(_ sender: Any) {
-        for videoMonitor in vidz{
-            videoMonitor.transportMoviesTo(timeInSeconds: 20.0)
-        }
+        vidz[0].toggleVersion()
     }
     
     //MARK:- helpers
